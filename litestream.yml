@@ -1,0 +1,11 @@
+# litestream.yml — Continuous SQLite WAL replication configuration for rabbet
+dbs:
+  - path: "rabbet.db"
+    replicas:
+      - type: s3
+        bucket: "${LITESTREAM_BUCKET:-gaugeblock-rabbet-wal}"
+        path: "rabbet-wal-replicas"
+        endpoint: "${LITESTREAM_ENDPOINT:-https://s3.us-east-1.amazonaws.com}"
+        sync-interval: 1s
+        retention: 720h
+

@@ -1,4 +1,5 @@
-//! # rabbet
+//! `rabbet` — Public Telemetry Corpus Hub & Open-Weight Training Foundry.
 //!
-//! AST-anonymized telemetry corpus hub and open-weight micro-model training foundry.
-pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+//! Re-exports the complete domain engine from `rabbet-core`.
+
+pub use rabbet_core::*;
