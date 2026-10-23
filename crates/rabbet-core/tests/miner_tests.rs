@@ -1,5 +1,7 @@
 //! Unit tests for cold-start OSS miner and AST skeleton pattern discovery.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use miter_engine::Language;
 use rabbet_core::db::MasterStore;
 use rabbet_core::gate::compute_canonical_trace_hash;
@@ -33,7 +35,8 @@ fn process_data(v: Vec<u8>) -> usize {
 
 #[test]
 fn test_ast_skeleton_and_pattern_discovery() {
-    let (template, holes) = extract_ast_skeleton("items.iter().filter(|x| x > 10).map(|x| \"result\").collect()");
+    let (template, holes) =
+        extract_ast_skeleton("items.iter().filter(|x| x > 10).map(|x| \"result\").collect()");
     assert!(template.contains("?[num_lit_"));
     assert!(template.contains("?[str_lit_"));
     assert_eq!(holes.len(), 2);
@@ -47,7 +50,10 @@ fn test_ast_skeleton_and_pattern_discovery() {
             tier: TelemetryTier::Gold,
             selected_pattern_id: None,
             anonymized_scope_signature: format!("fn batch_{}(s: &str)", i),
-            filled_holes: vec![("expr".to_string(), "values.iter().filter(|v| v > 0).collect()".to_string())],
+            filled_holes: vec![(
+                "expr".to_string(),
+                "values.iter().filter(|v| v > 0).collect()".to_string(),
+            )],
             rejected_attempt: Some("values.iter().collect()".to_string()),
             verification: VerificationReport {
                 ast_valid: true,
@@ -58,12 +64,18 @@ fn test_ast_skeleton_and_pattern_discovery() {
             },
         };
         let hash = compute_canonical_trace_hash(&trace).expect("hash");
-        store.insert_trace(&SpoolEntry {
-            trace,
-            content_hash: hash,
-            sync_status: "synced".to_string(),
-            recorded_at_ms: 100 + i,
-        }, false, None).expect("insert");
+        store
+            .insert_trace(
+                &SpoolEntry {
+                    trace,
+                    content_hash: hash,
+                    sync_status: "synced".to_string(),
+                    recorded_at_ms: 100 + i,
+                },
+                false,
+                None,
+            )
+            .expect("insert");
     }
 
     let options = PatternMinerOptions { min_frequency: 3 };

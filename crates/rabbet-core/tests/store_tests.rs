@@ -1,5 +1,7 @@
 //! Unit tests for SQLite MasterStore and deduplication queries.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use miter_engine::Language;
 use rabbet_core::db::MasterStore;
 use rabbet_core::gate::compute_canonical_trace_hash;
@@ -50,7 +52,9 @@ fn test_store_insert_and_deduplication() {
     assert!(inserted, "First insert should return true");
 
     // Duplicate insert with same content_hash: ignored
-    let dup = store.insert_trace(&entry, false, None).expect("duplicate insert");
+    let dup = store
+        .insert_trace(&entry, false, None)
+        .expect("duplicate insert");
     assert!(!dup, "Duplicate insert should return false");
 
     // Verify stats
@@ -73,7 +77,9 @@ fn test_store_query_and_candidates() {
         sync_status: "pending".to_string(),
         recorded_at_ms: 2000,
     };
-    store.insert_trace(&entry, true, Some("gaugeblock/joiner")).expect("insert");
+    store
+        .insert_trace(&entry, true, Some("gaugeblock/joiner"))
+        .expect("insert");
 
     let stats = store.get_stats().expect("stats");
     assert_eq!(stats.total_traces, 1);
@@ -98,12 +104,16 @@ fn test_store_query_and_candidates() {
         occurrence_count: 5,
         example_snippets: vec!["println!(\"hello\");".to_string()],
     };
-    store.insert_pattern_candidate(&cand).expect("insert candidate");
+    store
+        .insert_pattern_candidate(&cand)
+        .expect("insert candidate");
 
     let candidates = store.list_pattern_candidates(None).expect("list");
     assert_eq!(candidates.len(), 1);
     assert_eq!(candidates[0].candidate_id, "test_pattern_01");
 
-    let updated = store.update_candidate_status("test_pattern_01", "approved").expect("update");
+    let updated = store
+        .update_candidate_status("test_pattern_01", "approved")
+        .expect("update");
     assert!(updated);
 }

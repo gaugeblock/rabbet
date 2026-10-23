@@ -3,7 +3,7 @@
 use crate::error::{RabbetError, Result};
 use crate::model::{AnonymizedSynthesisTrace, PatternCandidate, TelemetryTier, TraceFilter};
 use miter_engine::Language;
-use rusqlite::{params, Connection};
+use rusqlite::{Connection, params};
 use std::sync::{Arc, Mutex};
 use uuid::Uuid;
 
@@ -12,7 +12,9 @@ pub fn query_traces_internal(
     conn: &Arc<Mutex<Connection>>,
     filter: &TraceFilter,
 ) -> Result<Vec<(String, AnonymizedSynthesisTrace)>> {
-    let conn = conn.lock().map_err(|e| RabbetError::InvalidRequest(e.to_string()))?;
+    let conn = conn
+        .lock()
+        .map_err(|e| RabbetError::InvalidRequest(e.to_string()))?;
     let mut query = "SELECT content_hash, trace_id, language, tier, selected_pattern_id, anonymized_scope_signature, filled_holes_json, rejected_attempt, verification_json FROM traces WHERE 1=1".to_string();
     let mut params_vec: Vec<rusqlite::types::Value> = Vec::new();
 
@@ -55,25 +57,31 @@ pub fn query_traces_internal(
             "diamond" => TelemetryTier::Diamond,
             _ => TelemetryTier::Bronze,
         };
-        let filled_holes: Vec<(String, String)> = serde_json::from_str(&holes_json).unwrap_or_default();
-        let verification = serde_json::from_str(&verif_json).unwrap_or_else(|_| crate::model::VerificationReport {
-            ast_valid: true,
-            typecheck_passed: true,
-            tests_passed: Some(true),
-            diagnostics: Vec::new(),
-            duration_ms: 0,
+        let filled_holes: Vec<(String, String)> =
+            serde_json::from_str(&holes_json).unwrap_or_default();
+        let verification = serde_json::from_str(&verif_json).unwrap_or_else(|_| {
+            crate::model::VerificationReport {
+                ast_valid: true,
+                typecheck_passed: true,
+                tests_passed: Some(true),
+                diagnostics: Vec::new(),
+                duration_ms: 0,
+            }
         });
 
-        Ok((hash, AnonymizedSynthesisTrace {
-            trace_id,
-            language,
-            tier,
-            selected_pattern_id: pat_id,
-            anonymized_scope_signature: scope,
-            filled_holes,
-            rejected_attempt: rejected,
-            verification,
-        }))
+        Ok((
+            hash,
+            AnonymizedSynthesisTrace {
+                trace_id,
+                language,
+                tier,
+                selected_pattern_id: pat_id,
+                anonymized_scope_signature: scope,
+                filled_holes,
+                rejected_attempt: rejected,
+                verification,
+            },
+        ))
     })?;
 
     let mut results = Vec::new();
@@ -84,8 +92,13 @@ pub fn query_traces_internal(
 }
 
 /// Inserts or replaces a candidate pattern in the database.
-pub fn insert_pattern_candidate_internal(conn: &Arc<Mutex<Connection>>, c: &PatternCandidate) -> Result<()> {
-    let conn = conn.lock().map_err(|e| RabbetError::InvalidRequest(e.to_string()))?;
+pub fn insert_pattern_candidate_internal(
+    conn: &Arc<Mutex<Connection>>,
+    c: &PatternCandidate,
+) -> Result<()> {
+    let conn = conn
+        .lock()
+        .map_err(|e| RabbetError::InvalidRequest(e.to_string()))?;
     let holes_json = serde_json::to_string(&c.typed_holes)?;
     let examples_json = serde_json::to_string(&c.example_snippets)?;
     let lang_str = c.language.name().to_string();
@@ -115,10 +128,18 @@ pub fn insert_pattern_candidate_internal(conn: &Arc<Mutex<Connection>>, c: &Patt
 }
 
 /// Lists pattern candidates optionally filtered by review status.
-pub fn list_pattern_candidates_internal(conn: &Arc<Mutex<Connection>>, status: Option<&str>) -> Result<Vec<PatternCandidate>> {
-    let conn = conn.lock().map_err(|e| RabbetError::InvalidRequest(e.to_string()))?;
+pub fn list_pattern_candidates_internal(
+    conn: &Arc<Mutex<Connection>>,
+    status: Option<&str>,
+) -> Result<Vec<PatternCandidate>> {
+    let conn = conn
+        .lock()
+        .map_err(|e| RabbetError::InvalidRequest(e.to_string()))?;
     let query = if let Some(st) = status {
-        format!("SELECT candidate_id, language, description, template, typed_holes_json, occurrence_count, example_snippets_json FROM pattern_candidates WHERE status = '{}' ORDER BY occurrence_count DESC", st)
+        format!(
+            "SELECT candidate_id, language, description, template, typed_holes_json, occurrence_count, example_snippets_json FROM pattern_candidates WHERE status = '{}' ORDER BY occurrence_count DESC",
+            st
+        )
     } else {
         "SELECT candidate_id, language, description, template, typed_holes_json, occurrence_count, example_snippets_json FROM pattern_candidates ORDER BY occurrence_count DESC".to_string()
     };
@@ -130,7 +151,7 @@ pub fn list_pattern_candidates_internal(conn: &Arc<Mutex<Connection>>, status: O
         let desc: String = row.get(2)?;
         let tmpl: String = row.get(3)?;
         let holes_json: String = row.get(4)?;
-        let count: usize = row.get(5)?;
+        let count: i64 = row.get(5)?;
         let ex_json: String = row.get(6)?;
 
         let language = match lang_str.as_str() {
@@ -147,7 +168,7 @@ pub fn list_pattern_candidates_internal(conn: &Arc<Mutex<Connection>>, status: O
             description: desc,
             template: tmpl,
             typed_holes,
-            occurrence_count: count,
+            occurrence_count: count as usize,
             example_snippets,
         })
     })?;
@@ -160,8 +181,14 @@ pub fn list_pattern_candidates_internal(conn: &Arc<Mutex<Connection>>, status: O
 }
 
 /// Updates candidate review status.
-pub fn update_candidate_status_internal(conn: &Arc<Mutex<Connection>>, candidate_id: &str, status: &str) -> Result<bool> {
-    let conn = conn.lock().map_err(|e| RabbetError::InvalidRequest(e.to_string()))?;
+pub fn update_candidate_status_internal(
+    conn: &Arc<Mutex<Connection>>,
+    candidate_id: &str,
+    status: &str,
+) -> Result<bool> {
+    let conn = conn
+        .lock()
+        .map_err(|e| RabbetError::InvalidRequest(e.to_string()))?;
     let updated = conn.execute(
         "UPDATE pattern_candidates SET status = ?1 WHERE candidate_id = ?2",
         params![status, candidate_id],

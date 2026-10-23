@@ -9,4 +9,3 @@ pub use cold_miner::{ColdMinerOptions, extract_synthetic_traces_from_source, min
 pub use pattern_miner::{
     PatternMinerOptions, discover_pattern_candidates, export_dado_pattern_file,
 };
-

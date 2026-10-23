@@ -60,4 +60,3 @@ pub fn initialize_database(conn: &Connection) -> Result<()> {
 
     Ok(())
 }
-

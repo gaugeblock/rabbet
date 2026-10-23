@@ -35,4 +35,3 @@ pub fn write_parquet_file(output_path: &Path, batches: &[RecordBatch]) -> Result
     writer.close()?;
     Ok(total_rows)
 }
-

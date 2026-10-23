@@ -40,4 +40,3 @@ pub fn hole_filler_dpo_schema() -> SchemaRef {
         Field::new("compiler_diagnostic", DataType::Utf8, true),
     ]))
 }
-

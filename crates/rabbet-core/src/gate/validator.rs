@@ -56,4 +56,3 @@ pub fn validate_trace_structure(trace: &AnonymizedSynthesisTrace) -> Result<()> 
 
     Ok(())
 }
-

@@ -29,7 +29,10 @@ pub struct ParquetExportResult {
 }
 
 /// Exports all 3 canonical Parquet shards from the master SQLite database into `output_dir`.
-pub fn export_parquet_shards(store: &MasterStore, output_dir: &Path) -> Result<ParquetExportResult> {
+pub fn export_parquet_shards(
+    store: &MasterStore,
+    output_dir: &Path,
+) -> Result<ParquetExportResult> {
     std::fs::create_dir_all(output_dir)?;
     let all_traces = store.query_traces(&TraceFilter::default())?;
 
@@ -58,7 +61,9 @@ pub fn export_parquet_shards(store: &MasterStore, output_dir: &Path) -> Result<P
     })
 }
 
-fn build_router_sft_batch(traces: &[(String, AnonymizedSynthesisTrace)]) -> Result<(RecordBatch, usize)> {
+fn build_router_sft_batch(
+    traces: &[(String, AnonymizedSynthesisTrace)],
+) -> Result<(RecordBatch, usize)> {
     let mut b_id = StringBuilder::new();
     let mut b_lang = StringBuilder::new();
     let mut b_scope = StringBuilder::new();
@@ -89,7 +94,9 @@ fn build_router_sft_batch(traces: &[(String, AnonymizedSynthesisTrace)]) -> Resu
     Ok((batch, count))
 }
 
-fn build_hole_filler_sft_batch(traces: &[(String, AnonymizedSynthesisTrace)]) -> Result<(RecordBatch, usize)> {
+fn build_hole_filler_sft_batch(
+    traces: &[(String, AnonymizedSynthesisTrace)],
+) -> Result<(RecordBatch, usize)> {
     let mut b_id = StringBuilder::new();
     let mut b_lang = StringBuilder::new();
     let mut b_scope = StringBuilder::new();
@@ -136,7 +143,9 @@ fn build_hole_filler_sft_batch(traces: &[(String, AnonymizedSynthesisTrace)]) ->
     Ok((batch, count))
 }
 
-fn build_hole_filler_dpo_batch(traces: &[(String, AnonymizedSynthesisTrace)]) -> Result<(RecordBatch, usize)> {
+fn build_hole_filler_dpo_batch(
+    traces: &[(String, AnonymizedSynthesisTrace)],
+) -> Result<(RecordBatch, usize)> {
     let mut b_id = StringBuilder::new();
     let mut b_lang = StringBuilder::new();
     let mut b_prompt = StringBuilder::new();
@@ -146,13 +155,19 @@ fn build_hole_filler_dpo_batch(traces: &[(String, AnonymizedSynthesisTrace)]) ->
     let mut count = 0;
 
     for (_, t) in traces {
-        if t.tier == TelemetryTier::Gold && let Some(rejected) = &t.rejected_attempt {
-            let chosen = t.filled_holes
+        if t.tier == TelemetryTier::Gold
+            && let Some(rejected) = &t.rejected_attempt
+        {
+            let chosen = t
+                .filled_holes
                 .iter()
                 .map(|(h, e)| format!("{}: {}", h, e))
                 .collect::<Vec<_>>()
                 .join(", ");
-            let prompt = format!("Scope: {}\nPattern: {:?}", t.anonymized_scope_signature, t.selected_pattern_id);
+            let prompt = format!(
+                "Scope: {}\nPattern: {:?}",
+                t.anonymized_scope_signature, t.selected_pattern_id
+            );
             let diag = t
                 .verification
                 .diagnostics

@@ -51,7 +51,10 @@ pub fn mine_local_repo(
         }
 
         let path = entry.path();
-        if path.components().any(|c| c.as_os_str() == "target" || c.as_os_str() == ".git") {
+        if path
+            .components()
+            .any(|c| c.as_os_str() == "target" || c.as_os_str() == ".git")
+        {
             continue;
         }
 
@@ -83,7 +86,10 @@ pub fn mine_local_repo(
 }
 
 /// Extracts synthetic (scope + hole -> expression) traces from Rust source code.
-pub fn extract_synthetic_traces_from_source(source: &str, language: Language) -> Vec<AnonymizedSynthesisTrace> {
+pub fn extract_synthetic_traces_from_source(
+    source: &str,
+    language: Language,
+) -> Vec<AnonymizedSynthesisTrace> {
     let mut traces = Vec::new();
     let lines: Vec<&str> = source.lines().collect();
     let mut idx = 0;
@@ -107,8 +113,11 @@ pub fn extract_synthetic_traces_from_source(source: &str, language: Language) ->
                 idx += 1;
                 while idx < lines.len() && depth > 0 {
                     for ch in lines[idx].chars() {
-                        if ch == '{' { depth += 1; }
-                        else if ch == '}' { depth -= 1; }
+                        if ch == '{' {
+                            depth += 1;
+                        } else if ch == '}' {
+                            depth -= 1;
+                        }
                     }
                     if depth > 0 {
                         body_lines.push(lines[idx].trim());

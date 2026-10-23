@@ -1,5 +1,7 @@
 //! Unit tests for Parquet SFT and DPO shard dataset export.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use miter_engine::Language;
 use parquet::file::reader::{FileReader, SerializedFileReader};
 use rabbet_core::db::MasterStore;
@@ -31,12 +33,18 @@ fn insert_sample_traces(store: &MasterStore) {
         },
     };
     let h1 = compute_canonical_trace_hash(&t1).expect("h1");
-    store.insert_trace(&SpoolEntry {
-        trace: t1,
-        content_hash: h1,
-        sync_status: "synced".to_string(),
-        recorded_at_ms: 10,
-    }, false, None).expect("insert t1");
+    store
+        .insert_trace(
+            &SpoolEntry {
+                trace: t1,
+                content_hash: h1,
+                sync_status: "synced".to_string(),
+                recorded_at_ms: 10,
+            },
+            false,
+            None,
+        )
+        .expect("insert t1");
 
     // 2. Gold trace with rejected attempt (DPO candidate)
     let t2 = AnonymizedSynthesisTrace {
@@ -63,12 +71,18 @@ fn insert_sample_traces(store: &MasterStore) {
         },
     };
     let h2 = compute_canonical_trace_hash(&t2).expect("h2");
-    store.insert_trace(&SpoolEntry {
-        trace: t2,
-        content_hash: h2,
-        sync_status: "synced".to_string(),
-        recorded_at_ms: 20,
-    }, false, None).expect("insert t2");
+    store
+        .insert_trace(
+            &SpoolEntry {
+                trace: t2,
+                content_hash: h2,
+                sync_status: "synced".to_string(),
+                recorded_at_ms: 20,
+            },
+            false,
+            None,
+        )
+        .expect("insert t2");
 }
 
 #[test]

@@ -60,4 +60,3 @@ pub enum RabbetError {
 
 /// Convenience result alias for `rabbet-core`.
 pub type Result<T> = std::result::Result<T, RabbetError>;
-

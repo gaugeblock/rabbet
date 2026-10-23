@@ -157,7 +157,10 @@ pub mod option_language_serde {
     use serde::{Deserializer, Serializer};
 
     /// Serializes `Option<Language>`.
-    pub fn serialize<S>(lang: &Option<Language>, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    pub fn serialize<S>(
+        lang: &Option<Language>,
+        serializer: S,
+    ) -> std::result::Result<S::Ok, S::Error>
     where
         S: Serializer,
     {

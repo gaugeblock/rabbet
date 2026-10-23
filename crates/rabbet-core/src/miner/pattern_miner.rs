@@ -38,9 +38,9 @@ pub fn discover_pattern_candidates(
             let (template, holes) = extract_ast_skeleton(expr);
             let key = normalize_whitespace_skeleton(&template);
 
-            let entry = clusters.entry(key).or_insert_with(|| {
-                (template, holes, Vec::new())
-            });
+            let entry = clusters
+                .entry(key)
+                .or_insert_with(|| (template, holes, Vec::new()));
             if entry.2.len() < 5 {
                 entry.2.push(expr.clone());
             }
@@ -58,7 +58,10 @@ pub fn discover_pattern_candidates(
             let candidate = PatternCandidate {
                 candidate_id,
                 language: miter_engine::Language::Rust,
-                description: format!("Discovered recurring pattern with {} observed examples", examples.len()),
+                description: format!(
+                    "Discovered recurring pattern with {} observed examples",
+                    examples.len()
+                ),
                 template,
                 typed_holes: holes,
                 occurrence_count: examples.len(),
@@ -74,7 +77,10 @@ pub fn discover_pattern_candidates(
 }
 
 /// Exports an approved pattern candidate as a valid `.dado` YAML template file.
-pub fn export_dado_pattern_file(candidate: &PatternCandidate, output_dir: &Path) -> Result<std::path::PathBuf> {
+pub fn export_dado_pattern_file(
+    candidate: &PatternCandidate,
+    output_dir: &Path,
+) -> Result<std::path::PathBuf> {
     std::fs::create_dir_all(output_dir)?;
     let file_path = output_dir.join(format!("{}.yaml", candidate.candidate_id));
 
@@ -113,4 +119,3 @@ fn indent_text(text: &str, spaces: usize) -> String {
         .collect::<Vec<_>>()
         .join("\n")
 }
-

@@ -54,4 +54,3 @@ pub fn normalize_whitespace_skeleton(skeleton: &str) -> String {
         .collect::<Vec<_>>()
         .join(" ")
 }
-

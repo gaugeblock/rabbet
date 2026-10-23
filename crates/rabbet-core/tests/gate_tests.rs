@@ -1,5 +1,7 @@
 //! Unit tests for the 4-stage ingestion validation gate.
 
+#![allow(clippy::unwrap_used, clippy::expect_used)]
+
 use miter_engine::Language;
 use rabbet_core::db::MasterStore;
 use rabbet_core::gate::{compute_canonical_trace_hash, process_ingest_batch, verify_trace_hash};
@@ -42,7 +44,8 @@ fn test_hash_verification() {
 
     let corrupted_entry = SpoolEntry {
         trace,
-        content_hash: "deadbeef00000000deadbeef00000000deadbeef00000000deadbeef00000000".to_string(),
+        content_hash: "deadbeef00000000deadbeef00000000deadbeef00000000deadbeef00000000"
+            .to_string(),
         sync_status: "pending".to_string(),
         recorded_at_ms: 100,
     };

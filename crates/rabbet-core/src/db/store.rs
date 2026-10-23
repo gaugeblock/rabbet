@@ -6,8 +6,10 @@ use super::queries::{
 };
 use super::schema::initialize_database;
 use crate::error::{RabbetError, Result};
-use crate::model::{AnonymizedSynthesisTrace, CorpusStats, PatternCandidate, SpoolEntry, TraceFilter};
-use rusqlite::{params, Connection};
+use crate::model::{
+    AnonymizedSynthesisTrace, CorpusStats, PatternCandidate, SpoolEntry, TraceFilter,
+};
+use rusqlite::{Connection, params};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
@@ -49,7 +51,10 @@ impl MasterStore {
         is_synthetic: bool,
         source_repo: Option<&str>,
     ) -> Result<bool> {
-        let conn = self.conn.lock().map_err(|e| RabbetError::InvalidRequest(e.to_string()))?;
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|e| RabbetError::InvalidRequest(e.to_string()))?;
         let filled_holes_json = serde_json::to_string(&entry.trace.filled_holes)?;
         let verification_json = serde_json::to_string(&entry.trace.verification)?;
         let lang_str = entry.trace.language.name().to_string();
@@ -84,26 +89,40 @@ impl MasterStore {
 
     /// Queries summary statistics across tiers, languages, and storage size.
     pub fn get_stats(&self) -> Result<CorpusStats> {
-        let conn = self.conn.lock().map_err(|e| RabbetError::InvalidRequest(e.to_string()))?;
+        let conn = self
+            .conn
+            .lock()
+            .map_err(|e| RabbetError::InvalidRequest(e.to_string()))?;
         let mut stats = CorpusStats::default();
 
         let mut stmt = conn.prepare("SELECT tier, count(*) FROM traces GROUP BY tier")?;
-        let rows = stmt.query_map([], |row| Ok((row.get::<_, String>(0)?, row.get::<_, usize>(1)?)))?;
+        let rows = stmt.query_map([], |row| {
+            let count: i64 = row.get(1)?;
+            Ok((row.get::<_, String>(0)?, count as usize))
+        })?;
         for row in rows {
             let (tier, count) = row?;
             stats.total_traces += count;
             stats.counts_by_tier.insert(tier, count);
         }
 
-        let mut lang_stmt = conn.prepare("SELECT language, count(*) FROM traces GROUP BY language")?;
-        let lang_rows = lang_stmt.query_map([], |row| Ok((row.get::<_, String>(0)?, row.get::<_, usize>(1)?)))?;
+        let mut lang_stmt =
+            conn.prepare("SELECT language, count(*) FROM traces GROUP BY language")?;
+        let lang_rows = lang_stmt.query_map([], |row| {
+            let count: i64 = row.get(1)?;
+            Ok((row.get::<_, String>(0)?, count as usize))
+        })?;
         for row in lang_rows {
             let (lang, count) = row?;
             stats.counts_by_language.insert(lang, count);
         }
 
-        let mut synth_stmt = conn.prepare("SELECT is_synthetic, count(*) FROM traces GROUP BY is_synthetic")?;
-        let synth_rows = synth_stmt.query_map([], |row| Ok((row.get::<_, bool>(0)?, row.get::<_, usize>(1)?)))?;
+        let mut synth_stmt =
+            conn.prepare("SELECT is_synthetic, count(*) FROM traces GROUP BY is_synthetic")?;
+        let synth_rows = synth_stmt.query_map([], |row| {
+            let count: i64 = row.get(1)?;
+            Ok((row.get::<_, bool>(0)?, count as usize))
+        })?;
         for row in synth_rows {
             let (is_syn, count) = row?;
             if is_syn {
@@ -113,8 +132,11 @@ impl MasterStore {
             }
         }
 
-        let mut dpo_stmt = conn.prepare("SELECT count(*) FROM traces WHERE tier = 'gold' AND rejected_attempt IS NOT NULL")?;
-        stats.dpo_pairs_count = dpo_stmt.query_row([], |row| row.get(0))?;
+        let mut dpo_stmt = conn.prepare(
+            "SELECT count(*) FROM traces WHERE tier = 'gold' AND rejected_attempt IS NOT NULL",
+        )?;
+        let dpo_count: i64 = dpo_stmt.query_row([], |row| row.get(0))?;
+        stats.dpo_pairs_count = dpo_count as usize;
 
         if let Some(path) = &self.db_path
             && let Ok(metadata) = std::fs::metadata(path)
@@ -126,7 +148,10 @@ impl MasterStore {
     }
 
     /// Fetches traces matching the filter criteria.
-    pub fn query_traces(&self, filter: &TraceFilter) -> Result<Vec<(String, AnonymizedSynthesisTrace)>> {
+    pub fn query_traces(
+        &self,
+        filter: &TraceFilter,
+    ) -> Result<Vec<(String, AnonymizedSynthesisTrace)>> {
         query_traces_internal(&self.conn, filter)
     }
 

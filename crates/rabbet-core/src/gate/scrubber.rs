@@ -2,7 +2,9 @@
 
 use crate::error::{RabbetError, Result};
 use crate::model::AnonymizedSynthesisTrace;
-use miter_engine::security::{REDACTED_SECRET, is_high_entropy_secret, is_secret_literal, scrub_source_text};
+use miter_engine::security::{
+    REDACTED_SECRET, is_high_entropy_secret, is_secret_literal, scrub_source_text,
+};
 
 /// Validates that a trace does not leak unredacted credentials, re-scrubbing in place.
 pub fn verify_and_rescrub_trace(trace: &mut AnonymizedSynthesisTrace) -> Result<()> {
@@ -56,4 +58,3 @@ pub fn scan_for_raw_secrets(text: &str) -> bool {
     }
     false
 }
-

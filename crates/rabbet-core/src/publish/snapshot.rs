@@ -81,4 +81,3 @@ pub fn prepare_release_bundle(
     std::fs::write(&readme_path, content)?;
     Ok(readme_path)
 }
-

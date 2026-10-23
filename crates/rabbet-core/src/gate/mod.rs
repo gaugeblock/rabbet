@@ -96,4 +96,3 @@ pub fn process_ingest_batch(
         details,
     })
 }
-
