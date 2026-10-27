@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.1.0-beta.3] - 2026-05-09
+
+### Added
+- No additions in this release.
+
+### Fixed
+- No fixes in this release.
+
+### Changed
+- No user-facing changes in this release.
+
+### Maintenance
+- Initialize local backlog store with `RB` prefix for task tracking. (`fce65b5`)
+- Standardize README and establish 9-doc architecture for consistent project documentation. (`2e38ffb`)
+- Update release history with alpha and beta milestones. (`54fe4dd`)
+
 ### Documentation
 - Standardize README to 9-section template and establish AST-grounded 9-document architecture
 

@@ -8,8 +8,8 @@ repository.workspace = true
 description = "Core domain types, SQLite master store, Parquet exporter, and miners for rabbet"
 
 [dependencies]
-miter-engine = { path = "../../../miter/crates/engine", version = "0.1.0-alpha.3" }
-dado-core = { path = "../../../dado/crates/dado-core", version = "0.1.0-beta.2" }
+miter-engine = { path = "../../../miter/crates/engine", version = "0.1.0-beta.3" }
+dado-core = { path = "../../../dado/crates/dado-core", version = "0.1.0-beta.3" }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 thiserror = "2.0"
