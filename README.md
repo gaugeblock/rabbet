@@ -7,107 +7,120 @@
 
 Part of the **[`gaugeblock`](https://gaugeblock.dev)** neurosymbolic code synthesis ecosystem.
 
-> In carpentry, a **rabbet** (or rebate) is a stepped rectangular groove cut along the edge or face of a workpiece, providing a clean, recessed ledge into which another element fits flush (such as glass in a frame or back panels in cabinetry). In the `gaugeblock` ecosystem, `rabbet` is the central collector and fine-tuning foundry for compiler-verified synthesis traces: operating on a "Federated Edge Clients $\to$ Central Maintainer Foundry" architecture, it provides the secure recess into which anonymized traces from client tools (`joiner`, `benchwork`) are safely seated, scrubbed of PII/secrets, stored in SQLite with Litestream replication, and compacted into Arrow/Parquet SFT and DPO datasets for model fine-tuning.
+> In woodworking, a **rabbet** (or rebate) is a stepped rectangular recess cut along the edge or face of a workpiece, providing a clean ledge into which another element fits flush and secure (such as window panes or cabinet backing). In `gaugeblock`, `rabbet` is the central telemetry hub and fine-tuning foundry: it provides the secure recess into which compiler-verified synthesis traces from edge clients (`joiner`, `benchwork`) are safely seated, scrubbed of PII and secrets, indexed in SQLite with Litestream streaming replication, and compacted into Apache Arrow/Parquet SFT and DPO datasets for open-weight model training.
 
 ---
 
-## 1. Architecture Overview
+## 1. Why `rabbet`?
 
-```text
-┌────────────────────────────────────────────────────────┐
-│ Edge Clients (joiner, benchwork)                       │
-│ AnonymizedSynthesisTrace (Bronze / Silver / Gold)      │
-└───────────────────────────┬────────────────────────────┘
-                            │
-                            ▼
-┌────────────────────────────────────────────────────────┐
-│ rabbet Ingestion & Foundry Gate                        │
-│ - 4-Stage Ingestion Gate: Hash -> Scrub -> AST -> DB   │
-│ - Master Store: SQLite WAL + Litestream Replication    │
-│ - Dataset Compactor: Arrow RecordBatch -> Parquet      │
-│   * router_sft.parquet                                 │
-│   * hole_filler_sft.parquet                            │
-│   * hole_filler_dpo.parquet                            │
-│ - Pattern Miner: Clusters Gold traces into dado packs  │
-│ - Maintainer Admin Console & Web Dashboard (/admin)    │
-└───────────────────────────┬────────────────────────────┘
-                            │
-                            ▼
-┌────────────────────────────────────────────────────────┐
-│ Open Artifacts: Hugging Face Datasets & Model Weights  │
-└────────────────────────────────────────────────────────┘
+| Capability | Ad-Hoc Code Scraping | With `rabbet` |
+|:---|:---|:---|
+| **Data Quality** | Scraped GitHub code with syntax errors and broken types | **100% compiler-verified** AST synthesis targets (`Bronze` $\to$ `Diamond`) |
+| **Privacy & Security** | Leaked API keys, internal credentials, PII in prompts | **4-stage ingestion gate** with strict AST scrubbing and secret redaction |
+| **DPO Preferences** | Synthetic or ungrounded reward modeling | **Real compiler-guided DPO pairs** (rejected broken attempt vs. verified chosen) |
+| **Pattern Discovery** | Manual rule authoring based on developer intuition | **Automated AST skeleton clustering** discovering reusable `dado` templates |
+| **Storage & Training** | Heavy distributed DBs or uncompressed JSON Lines | **SQLite + Litestream** master store, Arrow RecordBatch $\to$ Parquet shards |
+| **Open Weight Ecosystem** | Proprietary closed APIs and hidden training data | **Direct Hugging Face Hub publication** for community fine-tuning |
+
+---
+
+## 2. Ingestion & Foundry Pipeline
+
+```mermaid
+flowchart TD
+    Edge[Edge Clients: joiner / benchwork] -->|POST /api/v1/traces| Gate[4-Stage Ingestion Gate]
+    
+    subgraph IngestionGate["4-Stage Ingestion Gate"]
+        G1[1. SHA-256 Hash Integrity] --> G2[2. PII / Secret Scrubber]
+        G2 --> G3[3. Tree-sitter AST Validator]
+        G3 --> G4[4. Idempotent Dedup Check]
+    end
+    
+    Gate --> MasterStore[(SQLite Master Store\nWAL Mode)]
+    MasterStore -->|Litestream Streaming| S3[(S3 / R2 Object Storage)]
+    
+    MasterStore --> Compactor[Parquet Compactor Engine]
+    Compactor --> SFT1[router_sft.parquet]
+    Compactor --> SFT2[hole_filler_sft.parquet]
+    Compactor --> DPO[hole_filler_dpo.parquet]
+    
+    MasterStore --> PatternMiner[AST Skeleton Miner]
+    PatternMiner --> DadoPacks[Candidate .dado Templates]
+    
+    SFT1 & SFT2 & DPO --> HFPub[rabbet publish-hub]
+    HFPub --> HF[(Hugging Face Hub\ngaugeblock/synthesis-corpus)]
 ```
 
 ---
 
-## 2. Core Capabilities
+## 3. CLI Command Reference
 
-* **Master Store (SQLite + Litestream):** Single Source of Truth (`rabbet.db`) with WAL mode, unique content hash deduplication, and streaming S3/R2 replication.
-* **Public Ingestion Gate (`POST /api/v1/traces`):** 4-stage gate (Hash verification $\to$ PII/Secret re-scrubbing via `miter` $\to$ AST syntax check $\to$ Idempotent DB insert).
-* **Parquet Dataset Compactor:** Arrow RecordBatch compaction into 3 canonical shards:
-  * `router_sft.parquet`: Lexical scope + intent $\to$ pattern ID.
-  * `hole_filler_sft.parquet`: Lexical scope + template hole $\to$ target expression.
-  * `hole_filler_dpo.parquet`: Direct Preference Optimization pairs (`prompt`, `chosen`, `rejected`, `compiler_diagnostic`).
-* **Cold-Start OSS Miner (`rabbet mine-oss`):** Walks open-source repositories to extract synthetic `(Scope + TypedHole -> Expression)` pairs.
-* **AST Skeleton Pattern Miner (`rabbet mine-patterns`):** Discovers recurring structural skeletons in Gold Oracle traces to propose new `.gaugeblock/dado/patterns` templates.
-* **Maintainer Admin Console (`/admin`):** Token-protected embedded web dashboard and REST API (`RABBET_ADMIN_TOKEN`).
+The `rabbet` binary exposes complete server, mining, compaction, and administrative commands:
 
----
-
-## 3. Workspace Crate Layout
-
-* **`rabbet`**: Facade crate re-exporting `rabbet-core`.
-* **`crates/rabbet-core`**: Core telemetry models, SQLite storage engine, Arrow/Parquet compactor, OSS miner, and pattern extraction algorithms.
-* **`crates/rabbet-cli`**: Clap binary entrypoint (`rabbet`) providing ingestion server, dataset export, and maintenance commands.
+| Command | Subcommands / Flags | Purpose |
+|:---|:---|:---|
+| `rabbet serve` | `--port`, `--host`, `--db-path`, `--admin-token` | Starts the telemetry ingestion HTTP server and web dashboard |
+| `rabbet mine-oss` | `--path`, `--db-path`, `--max-traces` | Mines synthetic `(Scope + Hole -> Expr)` pairs from OSS codebases |
+| `rabbet export-parquet` | `--db-path`, `--output-dir` | Compiles and exports the 3 canonical Parquet dataset shards |
+| `rabbet mine-patterns` | `--db-path`, `--min-frequency`, `--output-dir` | Discovers and clusters recurring AST patterns from Gold traces |
+| `rabbet publish-hub` | `--bundle-dir`, `--repo-id`, `--token`, `--dry-run` | Packages and publishes Parquet shards to Hugging Face Hub |
+| `rabbet admin` | *Subcommands below* | Executes maintainer control plane operations via CLI |
+| `rabbet admin stats` | *(none)* | Displays summary corpus statistics across tiers and languages |
+| `rabbet admin compact` | `--output-dir` | Triggers immediate Parquet compaction from SQLite |
+| `rabbet admin candidates` | *(none)* | Lists discovered pattern candidates mined from Gold traces |
+| `rabbet admin approve` | `--candidate-id`, `--output-dir` | Approves a mined pattern candidate and exports to `.dado` format |
 
 ---
 
-## 4. Installation & CLI Quickstart
+## 4. Crate Topology
+
+| Crate | Path | Responsibility |
+|:---|:---|:---|
+| [`rabbet`](./src/lib.rs) | `.` | Root facade crate re-exporting `rabbet-core` |
+| [`rabbet-core`](./crates/rabbet-core) | `crates/rabbet-core` | Telemetry schemas, SQLite store, Arrow compactor, pattern miner |
+| [`rabbet-cli`](./crates/rabbet-cli) | `crates/rabbet-cli` | Axum HTTP server, Clap CLI entrypoint, and embedded admin UI |
+
+---
+
+## 5. Quickstart
 
 ```bash
-# Install globally via cargo
+# 1. Install rabbet CLI globally
 cargo install --path crates/rabbet-cli
 
-# 1. Start telemetry server and admin console
-rabbet serve --port 8080 --host 0.0.0.0 --db-path rabbet.db --admin-token "$RABBET_ADMIN_TOKEN"
+# 2. Launch the telemetry ingestion server
+rabbet serve --port 8080 --host 0.0.0.0 --db-path rabbet.db
 
-# 2. Mine synthetic training pairs from open-source repositories
+# 3. Mine synthetic training data from local open-source crates
 rabbet mine-oss --path ../miter --max-traces 5000 --db-path rabbet.db
 
-# 3. Compact SQLite master store into Arrow/Parquet shards
+# 4. Compile Parquet dataset shards for SFT and DPO training
 rabbet export-parquet --db-path rabbet.db --output-dir dist/parquet
 
-# 4. Discover candidate dado patterns from recurring Gold traces
-rabbet mine-patterns --db-path rabbet.db --min-frequency 3 --output-dir .dado/patterns
+# 5. Inspect corpus telemetry statistics
+rabbet admin stats --db-path rabbet.db
 
-# 5. Publish dataset bundle to Hugging Face Hub
+# 6. Publish dataset release to Hugging Face Hub
 rabbet publish-hub --bundle-dir dist/parquet --repo-id gaugeblock/synthesis-corpus --dry-run
 ```
 
 ---
 
-## 5. Repository Documentation
+## 6. Repository Documentation
 
 `rabbet` adheres strictly to the canonical **9-Document Architecture**:
-* **[`CONTRIBUTING.md`](./CONTRIBUTING.md):** Local toolchain prerequisites, dataset generation, and test execution.
-* **[`ARCHITECTURE.md`](./ARCHITECTURE.md):** Ingestion gate pipeline, Litestream replication, and Arrow compaction layout.
-* **[`SPEC.md`](./SPEC.md):** Telemetry payload wire schemas, privacy scrubbing rules, and Parquet column types.
-* **[`AGENTS.md`](./AGENTS.md):** Autonomous systems directives, <=250 LOC limits, and zero-unwrap rules.
-* **[`CHANGELOG.md`](./CHANGELOG.md):** Chronological historical release entries and unreleased changes.
-
----
-
-## 6. Verification & Development Directives
-
-* **File Size Ceiling:** All `.rs` source files must strictly remain under 250 LOC.
-* **Tiered Verification Matrix:**
-  * Tier 1: `cargo check -p rabbet-core` (<2s).
-  * Tier 2: `cargo fmt --check -p rabbet-core && cargo clippy -p rabbet-core && cargo test -p rabbet-core`.
-  * Tier 3: `chalkline docs check -d .` before task verification.
+* **[`README.md`](./README.md):** Project overview, comparative analysis, CLI reference, and architecture diagram.
+* **[`SPEC.md`](./SPEC.md):** Formal wire contracts, boundary types, 4-stage gate invariants, and Parquet column schemas.
+* **[`ARCHITECTURE.md`](./ARCHITECTURE.md):** Subsystem decomposition, Litestream replication, and compaction flows.
+* **[`DESIGN.md`](./DESIGN.md):** Concrete Architectural Decision Records (ADRs).
+* **[`PRODUCT.md`](./PRODUCT.md):** Personas, user journeys, JTBD, and open-weight training value proposition.
+* **[`CONTRIBUTING.md`](./CONTRIBUTING.md):** Rust 2024 toolchain requirements and tiered verification gates.
+* **[`ROADMAP.md`](./ROADMAP.md):** Active milestones and upcoming training foundry capabilities.
+* **[`CHANGELOG.md`](./CHANGELOG.md):** Historical version releases and pending changes.
+* **[`AGENTS.md`](./AGENTS.md):** Non-negotiable engineering laws and autonomous execution directives.
 
 ---
 
 ## 7. License
 
-Licensed under the [Apache License, Version 2.0](LICENSE).
-Part of the [`gaugeblock`](https://gaugeblock.dev) suite.
+Licensed under the Apache License, Version 2.0 ([`LICENSE`](./LICENSE)).

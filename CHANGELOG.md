@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+- Elevate all 9 canonical documents to gold standard matching suite specification (`GB-116`).
+- Codify 4-stage ingestion gate invariants and 25 boundary type contracts in `SPEC.md`.
+- Document complete CLI command and maintainer subcommand matrix in `README.md`.
+- Expand architecture topologies, Litestream replication, and 5 concrete ADRs in `ARCHITECTURE.md` and `DESIGN.md`.
+
+
 ## [v0.1.0-beta.3] - 2026-05-09
 
 ### Added

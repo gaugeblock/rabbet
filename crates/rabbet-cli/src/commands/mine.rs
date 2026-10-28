@@ -14,7 +14,10 @@ pub fn exec_mine_oss(args: MineOssArgs) -> Result<(), Box<dyn std::error::Error 
 
     println!("Mining synthetic traces from: {}", args.path.display());
     let mined = mine_local_repo(&args.path, &store, &options)?;
-    println!("Successfully mined and ingested {} synthetic traces into master store", mined);
+    println!(
+        "Successfully mined and ingested {} synthetic traces into master store",
+        mined
+    );
 
     let stats = store.get_stats()?;
     println!("Updated Corpus Statistics:");
@@ -23,4 +26,3 @@ pub fn exec_mine_oss(args: MineOssArgs) -> Result<(), Box<dyn std::error::Error 
 
     Ok(())
 }
-

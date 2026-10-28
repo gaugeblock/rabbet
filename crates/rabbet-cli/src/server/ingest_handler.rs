@@ -48,4 +48,3 @@ pub async fn handle_batch_ingest(
         }
     }
 }
-

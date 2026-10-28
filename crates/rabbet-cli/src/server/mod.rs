@@ -37,4 +37,3 @@ pub async fn run_server(args: ServeArgs) -> Result<(), Box<dyn std::error::Error
     axum::serve(listener, app).await?;
     Ok(())
 }
-

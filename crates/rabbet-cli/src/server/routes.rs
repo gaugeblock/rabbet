@@ -5,9 +5,9 @@ use super::admin_handler::{
 };
 use super::ingest_handler::{AppState, handle_batch_ingest};
 use super::static_assets::get_admin_dashboard_html;
+use axum::Router;
 use axum::response::Html;
 use axum::routing::{get, post};
-use axum::Router;
 use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
@@ -29,9 +29,11 @@ pub fn build_app_router(state: Arc<AppState>) -> Router {
         .route("/api/v1/admin/stats", get(handle_admin_stats))
         .route("/api/v1/admin/compact", post(handle_admin_compact))
         .route("/api/v1/admin/candidates", get(handle_admin_candidates))
-        .route("/api/v1/admin/approve/{candidate_id}", post(handle_admin_approve))
+        .route(
+            "/api/v1/admin/approve/{candidate_id}",
+            post(handle_admin_approve),
+        )
         .layer(cors)
         .layer(TraceLayer::new_for_http())
         .with_state(state)
 }
-

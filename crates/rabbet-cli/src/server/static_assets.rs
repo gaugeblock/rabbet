@@ -98,4 +98,3 @@ pub fn get_admin_dashboard_html() -> &'static str {
 </body>
 </html>"#
 }
-
