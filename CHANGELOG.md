@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.1.0-beta.4] - 2026-05-09
+
+### Changed
+
+- Elevated the 9-document architecture to gold standard in `rabbet` (GB-116).
+
 ### Documentation
 - Elevate all 9 canonical documents to gold standard matching suite specification (`GB-116`).
 - Codify 4-stage ingestion gate invariants and 25 boundary type contracts in `SPEC.md`.
