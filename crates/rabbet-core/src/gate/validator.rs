@@ -2,14 +2,13 @@
 
 use crate::error::{RabbetError, Result};
 use crate::model::{AnonymizedSynthesisTrace, SpoolEntry};
-use sha2::{Digest, Sha256};
 
 /// Computes the canonical SHA-256 content hash of an anonymized trace.
+///
+/// Delegates to [`SpoolEntry::hash_trace`] so the hash a writer records is byte-for-byte the hash
+/// the gate recomputes (`GB-182`); a second copy of this algorithm here is how the two drifted.
 pub fn compute_canonical_trace_hash(trace: &AnonymizedSynthesisTrace) -> Result<String> {
-    let json = serde_json::to_vec(trace)?;
-    let mut hasher = Sha256::new();
-    hasher.update(&json);
-    Ok(format!("{:x}", hasher.finalize()))
+    Ok(SpoolEntry::hash_trace(trace)?)
 }
 
 /// Verifies that the client-supplied content hash matches the recomputed trace hash.
