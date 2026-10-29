@@ -2,7 +2,7 @@
 
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use miter_engine::Language;
+use gaugeblock_contracts::Language;
 use rabbet_core::db::MasterStore;
 use rabbet_core::gate::compute_canonical_trace_hash;
 use rabbet_core::model::{

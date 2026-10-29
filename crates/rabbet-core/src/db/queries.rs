@@ -2,7 +2,7 @@
 
 use crate::error::{RabbetError, Result};
 use crate::model::{AnonymizedSynthesisTrace, PatternCandidate, TelemetryTier, TraceFilter};
-use miter_engine::Language;
+use gaugeblock_contracts::Language;
 use rusqlite::{Connection, params};
 use std::sync::{Arc, Mutex};
 use uuid::Uuid;

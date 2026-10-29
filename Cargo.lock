@@ -1796,6 +1796,7 @@ dependencies = [
  "arrow",
  "async-trait",
  "dado-core",
+ "gaugeblock-contracts",
  "miter-engine",
  "parquet",
  "reqwest",

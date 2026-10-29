@@ -1,6 +1,6 @@
 //! Canonical wire contracts and domain models for `rabbet`.
 
-use miter_engine::Language;
+use gaugeblock_contracts::Language;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -67,7 +67,6 @@ pub struct AnonymizedSynthesisTrace {
     /// Unique identifier for this synthesis trace.
     pub trace_id: Uuid,
     /// Target programming language.
-    #[serde(with = "dado_core::language_serde")]
     pub language: Language,
     /// Dynamic verification tier assigned upon completion.
     pub tier: TelemetryTier,
@@ -150,13 +149,16 @@ pub struct CorpusStats {
     pub db_size_bytes: u64,
 }
 
-/// Serde helper for `Option<Language>`.
+/// Serde helper for `Option<Language>` over the wire type.
 pub mod option_language_serde {
     use super::*;
-    use miter_engine::Language;
-    use serde::{Deserializer, Serializer};
+    use serde::{Deserialize, Deserializer, Serializer};
 
-    /// Serializes `Option<Language>`.
+    /// Serializes `Option<Language>` through the wire representation.
+    ///
+    /// # Errors
+    ///
+    /// Propagates any error from the underlying serializer.
     pub fn serialize<S>(
         lang: &Option<Language>,
         serializer: S,
@@ -164,29 +166,19 @@ pub mod option_language_serde {
     where
         S: Serializer,
     {
-        match lang {
-            Some(l) => serializer.serialize_some(l.name()),
-            None => serializer.serialize_none(),
-        }
+        lang.serialize(serializer)
     }
 
-    /// Deserializes `Option<Language>`.
+    /// Deserializes `Option<Language>` through the wire representation.
+    ///
+    /// # Errors
+    ///
+    /// Propagates any error from the underlying deserializer.
     pub fn deserialize<'de, D>(deserializer: D) -> std::result::Result<Option<Language>, D::Error>
     where
         D: Deserializer<'de>,
     {
-        let opt = Option::<String>::deserialize(deserializer)?;
-        match opt {
-            Some(s) => match s.to_lowercase().as_str() {
-                "rust" | "rs" => Ok(Some(Language::Rust)),
-                "typescript" | "ts" => Ok(Some(Language::TypeScript)),
-                "tsx" => Ok(Some(Language::Tsx)),
-                "javascript" | "js" => Ok(Some(Language::JavaScript)),
-                "python" | "py" => Ok(Some(Language::Python)),
-                _ => Ok(None),
-            },
-            None => Ok(None),
-        }
+        Option::<Language>::deserialize(deserializer)
     }
 }
 
@@ -212,7 +204,6 @@ pub struct PatternCandidate {
     /// Proposed pattern ID (e.g. `mined_rust_iterator_filter_01`).
     pub candidate_id: String,
     /// Target language.
-    #[serde(with = "dado_core::language_serde")]
     pub language: Language,
     /// Human-readable description.
     pub description: String,

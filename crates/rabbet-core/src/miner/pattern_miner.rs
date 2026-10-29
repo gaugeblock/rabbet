@@ -57,7 +57,7 @@ pub fn discover_pattern_candidates(
 
             let candidate = PatternCandidate {
                 candidate_id,
-                language: miter_engine::Language::Rust,
+                language: gaugeblock_contracts::Language::Rust,
                 description: format!(
                     "Discovered recurring pattern with {} observed examples",
                     examples.len()

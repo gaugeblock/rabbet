@@ -4,7 +4,7 @@ use crate::db::MasterStore;
 use crate::error::{RabbetError, Result};
 use crate::gate::validator::compute_canonical_trace_hash;
 use crate::model::{AnonymizedSynthesisTrace, SpoolEntry, TelemetryTier, VerificationReport};
-use miter_engine::Language;
+use gaugeblock_contracts::Language;
 use std::path::Path;
 use uuid::Uuid;
 
