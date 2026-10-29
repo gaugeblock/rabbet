@@ -6,7 +6,7 @@ use gaugeblock_contracts::Language;
 use rabbet_core::db::MasterStore;
 use rabbet_core::gate::compute_canonical_trace_hash;
 use rabbet_core::model::{
-    AnonymizedSynthesisTrace, PatternCandidate, SpoolEntry, TelemetryTier, TraceFilter,
+    AnonymizedSynthesisTrace, PatternCandidate, SpoolEntry, SyncStatus, TelemetryTier, TraceFilter,
     VerificationReport,
 };
 use uuid::Uuid;
@@ -45,7 +45,7 @@ fn test_store_insert_and_deduplication() {
     let entry = SpoolEntry {
         trace: trace.clone(),
         content_hash: hash.clone(),
-        sync_status: "pending".to_string(),
+        sync_status: SyncStatus::Pending,
         recorded_at_ms: 1000,
     };
 
@@ -76,7 +76,7 @@ fn test_store_query_and_candidates() {
     let entry = SpoolEntry {
         trace: gold_trace,
         content_hash: hash,
-        sync_status: "pending".to_string(),
+        sync_status: SyncStatus::Pending,
         recorded_at_ms: 2000,
     };
     store

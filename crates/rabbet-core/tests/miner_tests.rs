@@ -9,7 +9,9 @@ use rabbet_core::miner::{
     PatternMinerOptions, discover_pattern_candidates, export_dado_pattern_file,
     extract_ast_skeleton, extract_synthetic_traces_from_source,
 };
-use rabbet_core::model::{AnonymizedSynthesisTrace, SpoolEntry, TelemetryTier, VerificationReport};
+use rabbet_core::model::{
+    AnonymizedSynthesisTrace, SpoolEntry, SyncStatus, TelemetryTier, VerificationReport,
+};
 use tempfile::tempdir;
 use uuid::Uuid;
 
@@ -71,7 +73,7 @@ fn test_ast_skeleton_and_pattern_discovery() {
                 &SpoolEntry {
                     trace,
                     content_hash: hash,
-                    sync_status: "synced".to_string(),
+                    sync_status: SyncStatus::Synced,
                     recorded_at_ms: 100 + i,
                 },
                 false,

@@ -3,7 +3,9 @@
 use crate::db::MasterStore;
 use crate::error::{RabbetError, Result};
 use crate::gate::validator::compute_canonical_trace_hash;
-use crate::model::{AnonymizedSynthesisTrace, SpoolEntry, TelemetryTier, VerificationReport};
+use crate::model::{
+    AnonymizedSynthesisTrace, SpoolEntry, SyncStatus, TelemetryTier, VerificationReport,
+};
 use gaugeblock_contracts::Language;
 use std::path::Path;
 use uuid::Uuid;
@@ -68,7 +70,7 @@ pub fn mine_local_repo(
                 let spool_entry = SpoolEntry {
                     trace,
                     content_hash: hash,
-                    sync_status: "synced".to_string(),
+                    sync_status: SyncStatus::Synced,
                     recorded_at_ms: std::time::SystemTime::now()
                         .duration_since(std::time::UNIX_EPOCH)
                         .unwrap_or_default()

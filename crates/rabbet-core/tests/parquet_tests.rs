@@ -7,7 +7,8 @@ use parquet::file::reader::{FileReader, SerializedFileReader};
 use rabbet_core::db::MasterStore;
 use rabbet_core::gate::compute_canonical_trace_hash;
 use rabbet_core::model::{
-    AnonymizedSynthesisTrace, CompilerDiagnostic, SpoolEntry, TelemetryTier, VerificationReport,
+    AnonymizedSynthesisTrace, CompilerDiagnostic, SpoolEntry, SyncStatus, TelemetryTier,
+    VerificationReport,
 };
 use rabbet_core::parquet::export_parquet_shards;
 use std::fs::File;
@@ -40,7 +41,7 @@ fn insert_sample_traces(store: &MasterStore) {
             &SpoolEntry {
                 trace: t1,
                 content_hash: h1,
-                sync_status: "synced".to_string(),
+                sync_status: SyncStatus::Synced,
                 recorded_at_ms: 10,
             },
             false,
@@ -80,7 +81,7 @@ fn insert_sample_traces(store: &MasterStore) {
             &SpoolEntry {
                 trace: t2,
                 content_hash: h2,
-                sync_status: "synced".to_string(),
+                sync_status: SyncStatus::Synced,
                 recorded_at_ms: 20,
             },
             false,

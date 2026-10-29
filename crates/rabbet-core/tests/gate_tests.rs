@@ -6,7 +6,8 @@ use gaugeblock_contracts::Language;
 use rabbet_core::db::MasterStore;
 use rabbet_core::gate::{compute_canonical_trace_hash, process_ingest_batch, verify_trace_hash};
 use rabbet_core::model::{
-    AnonymizedSynthesisTrace, BatchIngestRequest, SpoolEntry, TelemetryTier, VerificationReport,
+    AnonymizedSynthesisTrace, BatchIngestRequest, SpoolEntry, SyncStatus, TelemetryTier,
+    VerificationReport,
 };
 use uuid::Uuid;
 
@@ -39,7 +40,7 @@ fn test_hash_verification() {
     let valid_entry = SpoolEntry {
         trace: trace.clone(),
         content_hash: computed_hash,
-        sync_status: "pending".to_string(),
+        sync_status: SyncStatus::Pending,
         recorded_at_ms: 100,
     };
     assert!(verify_trace_hash(&valid_entry).is_ok());
@@ -48,7 +49,7 @@ fn test_hash_verification() {
         trace,
         content_hash: "deadbeef00000000deadbeef00000000deadbeef00000000deadbeef00000000"
             .to_string(),
-        sync_status: "pending".to_string(),
+        sync_status: SyncStatus::Pending,
         recorded_at_ms: 100,
     };
     assert!(verify_trace_hash(&corrupted_entry).is_err());
@@ -69,13 +70,13 @@ fn test_batch_ingest_pipeline() {
             SpoolEntry {
                 trace: trace1.clone(),
                 content_hash: hash1.clone(),
-                sync_status: "pending".to_string(),
+                sync_status: SyncStatus::Pending,
                 recorded_at_ms: 200,
             },
             SpoolEntry {
                 trace: trace_bad_hash,
                 content_hash: "invalid_hash_signature".to_string(),
-                sync_status: "pending".to_string(),
+                sync_status: SyncStatus::Pending,
                 recorded_at_ms: 201,
             },
         ],

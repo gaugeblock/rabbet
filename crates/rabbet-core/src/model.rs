@@ -10,18 +10,8 @@ pub use gaugeblock_contracts::{AnonymizedSynthesisTrace, TelemetryTier};
 // Diagnostics and verification live in `gaugeblock-contracts` (GB-174); re-exported for existing paths.
 pub use gaugeblock_contracts::{CompilerDiagnostic, VerificationReport};
 
-/// Local outbox spool entry matching `joiner-core`.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct SpoolEntry {
-    /// The anonymized trace payload.
-    pub trace: AnonymizedSynthesisTrace,
-    /// Deterministic SHA-256 hash of the canonical trace JSON.
-    pub content_hash: String,
-    /// Current synchronization state.
-    pub sync_status: String,
-    /// Timestamp in epoch milliseconds when spooled.
-    pub recorded_at_ms: u64,
-}
+// The outbox record lives in `gaugeblock-contracts` (GB-182) so every writer and reader agrees.
+pub use gaugeblock_contracts::{SpoolEntry, SyncStatus};
 
 /// Public batch submission payload for `POST /api/v1/traces`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
