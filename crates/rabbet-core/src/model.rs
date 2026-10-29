@@ -29,37 +29,8 @@ impl std::fmt::Display for TelemetryTier {
     }
 }
 
-/// A compiler diagnostic message emitted during verification.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
-pub struct CompilerDiagnostic {
-    /// Relative file path.
-    pub file: String,
-    /// 1-based line number.
-    pub line: usize,
-    /// 1-based column number.
-    pub column: usize,
-    /// Tool-specific error code (e.g. `E0308`).
-    pub code: Option<String>,
-    /// Error message string.
-    pub message: String,
-    /// Optional compiler suggestion.
-    pub suggestion: Option<String>,
-}
-
-/// Detailed compiler and test verification output matching `CONTRACTS.md`.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
-pub struct VerificationReport {
-    /// Whether the synthesized source parsed into a valid AST.
-    pub ast_valid: bool,
-    /// Whether static typecheck/compilation succeeded.
-    pub typecheck_passed: bool,
-    /// Whether cargo/project unit tests passed, if executed.
-    pub tests_passed: Option<bool>,
-    /// Located diagnostics emitted by the compiler or linter.
-    pub diagnostics: Vec<CompilerDiagnostic>,
-    /// Elapsed verification duration in milliseconds.
-    pub duration_ms: u64,
-}
+// Diagnostics and verification live in `gaugeblock-contracts` (GB-174); re-exported for existing paths.
+pub use gaugeblock_contracts::{CompilerDiagnostic, VerificationReport};
 
 /// Anonymized synthesis trace wire contract from `CONTRACTS.md`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
