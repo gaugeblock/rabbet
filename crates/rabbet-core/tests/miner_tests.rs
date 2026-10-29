@@ -62,6 +62,8 @@ fn test_ast_skeleton_and_pattern_discovery() {
                 diagnostics: Vec::new(),
                 duration_ms: 0,
             },
+            task_key: None,
+            head_commit_sha: None,
         };
         let hash = compute_canonical_trace_hash(&trace).expect("hash");
         store

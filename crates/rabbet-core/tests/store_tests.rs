@@ -31,6 +31,8 @@ fn make_sample_trace(tier: TelemetryTier, pattern: Option<&str>) -> AnonymizedSy
             diagnostics: Vec::new(),
             duration_ms: 0,
         },
+        task_key: None,
+        head_commit_sha: None,
     }
 }
 

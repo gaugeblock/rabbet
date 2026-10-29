@@ -4,54 +4,11 @@ use gaugeblock_contracts::Language;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-/// Quality tiers defined in `CONTRACTS.md` for compiler-verified synthesis telemetry.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum TelemetryTier {
-    /// Compiled and typechecked on attempt #1.
-    Bronze,
-    /// Passed unit tests on attempt #1.
-    Silver,
-    /// Required repair or Oracle fallback -> DPO training pair + pattern candidate.
-    Gold,
-    /// Survived unchanged in git main across subsequent commits.
-    Diamond,
-}
-
-impl std::fmt::Display for TelemetryTier {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Bronze => write!(f, "bronze"),
-            Self::Silver => write!(f, "silver"),
-            Self::Gold => write!(f, "gold"),
-            Self::Diamond => write!(f, "diamond"),
-        }
-    }
-}
+// Telemetry vocabulary lives in `gaugeblock-contracts` (GB-174); re-exported for existing paths.
+pub use gaugeblock_contracts::{AnonymizedSynthesisTrace, TelemetryTier};
 
 // Diagnostics and verification live in `gaugeblock-contracts` (GB-174); re-exported for existing paths.
 pub use gaugeblock_contracts::{CompilerDiagnostic, VerificationReport};
-
-/// Anonymized synthesis trace wire contract from `CONTRACTS.md`.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct AnonymizedSynthesisTrace {
-    /// Unique identifier for this synthesis trace.
-    pub trace_id: Uuid,
-    /// Target programming language.
-    pub language: Language,
-    /// Dynamic verification tier assigned upon completion.
-    pub tier: TelemetryTier,
-    /// Identified `dado` pattern ID, if matched by System 1 router.
-    pub selected_pattern_id: Option<String>,
-    /// Scrubbed lexical scope signature.
-    pub anonymized_scope_signature: String,
-    /// Concrete expressions synthesized into typed holes: (hole_id, anonymized_expression).
-    pub filled_holes: Vec<(String, String)>,
-    /// Previous failed synthesis attempt, present on Gold DPO traces.
-    pub rejected_attempt: Option<String>,
-    /// Compiler verification output.
-    pub verification: VerificationReport,
-}
 
 /// Local outbox spool entry matching `joiner-core`.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

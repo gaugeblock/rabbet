@@ -144,6 +144,8 @@ pub fn extract_synthetic_traces_from_source(
                                 diagnostics: Vec::new(),
                                 duration_ms: 0,
                             },
+                            task_key: None,
+                            head_commit_sha: None,
                         });
                     }
                 }

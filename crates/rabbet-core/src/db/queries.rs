@@ -80,6 +80,8 @@ pub fn query_traces_internal(
                 filled_holes,
                 rejected_attempt: rejected,
                 verification,
+                task_key: None,
+                head_commit_sha: None,
             },
         ))
     })?;

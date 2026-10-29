@@ -31,6 +31,8 @@ fn insert_sample_traces(store: &MasterStore) {
             diagnostics: Vec::new(),
             duration_ms: 10,
         },
+        task_key: None,
+        head_commit_sha: None,
     };
     let h1 = compute_canonical_trace_hash(&t1).expect("h1");
     store
@@ -69,6 +71,8 @@ fn insert_sample_traces(store: &MasterStore) {
             }],
             duration_ms: 20,
         },
+        task_key: None,
+        head_commit_sha: None,
     };
     let h2 = compute_canonical_trace_hash(&t2).expect("h2");
     store

@@ -26,6 +26,8 @@ fn make_valid_trace() -> AnonymizedSynthesisTrace {
             diagnostics: Vec::new(),
             duration_ms: 0,
         },
+        task_key: None,
+        head_commit_sha: None,
     }
 }
 
