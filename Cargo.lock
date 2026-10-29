@@ -621,9 +621,6 @@ dependencies = [
  "thiserror 2.0.21",
  "toml",
  "tracing",
- "tree-sitter",
- "tree-sitter-rust",
- "tree-sitter-typescript",
  "uuid",
 ]
 
