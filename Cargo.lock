@@ -272,17 +272,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "async-trait"
-version = "0.1.92"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "82f6aeea286b8eb4dd3431a1be1b59d290ace00f5bfd8e2a159bc2a05e2c1667"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 3.0.9",
-]
-
-[[package]]
 name = "atoi"
 version = "3.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -438,23 +427,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "chalkline-core"
-version = "0.1.0-beta.4"
-dependencies = [
- "miter-engine",
- "pulldown-cmark",
- "sawhorse-core",
- "serde",
- "serde_json",
- "storypole-core",
- "thiserror 2.0.21",
- "tokio",
- "toml",
- "tracing",
- "uuid",
-]
-
-[[package]]
 name = "chrono"
 version = "0.4.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -606,22 +578,6 @@ checksum = "78c8292055d1c1df0cce5d180393dc8cce0abec0a7102adb6c7b1eef6016d60a"
 dependencies = [
  "generic-array",
  "typenum",
-]
-
-[[package]]
-name = "dado-core"
-version = "0.1.0-beta.4"
-dependencies = [
- "chalkline-core",
- "gaugeblock-contracts",
- "miter-ast",
- "miter-engine",
- "serde",
- "serde_json",
- "thiserror 2.0.21",
- "toml",
- "tracing",
- "uuid",
 ]
 
 [[package]]
@@ -835,15 +791,6 @@ checksum = "85649ca51fd72272d7821adaf274ad91c288277713d9c18820d8499a7ff69e9a"
 dependencies = [
  "typenum",
  "version_check",
-]
-
-[[package]]
-name = "getopts"
-version = "0.2.24"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cfe4fbac503b8d1f88e6676011885f34b7174f46e59956bba534ba83abded4df"
-dependencies = [
- "unicode-width",
 ]
 
 [[package]]
@@ -1668,25 +1615,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pulldown-cmark"
-version = "0.13.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "278e9268c93b9e498a2da46c34d90ba93a3255eb99009646398f34bc73ab36eb"
-dependencies = [
- "bitflags",
- "getopts",
- "memchr",
- "pulldown-cmark-escape",
- "unicase",
-]
-
-[[package]]
-name = "pulldown-cmark-escape"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "007d8adb5ddab6f8e3f491ac63566a7d5002cc7ed73901f72057943fa71ae1ae"
-
-[[package]]
 name = "quinn"
 version = "0.11.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1776,15 +1704,10 @@ version = "0.1.0-beta.4"
 dependencies = [
  "axum",
  "clap",
- "dado-core",
- "miter-engine",
  "rabbet-core",
- "serde",
  "serde_json",
  "tempfile",
- "thiserror 2.0.21",
  "tokio",
- "tower",
  "tower-http",
  "tracing",
  "tracing-subscriber",
@@ -1795,8 +1718,6 @@ name = "rabbet-core"
 version = "0.1.0-beta.4"
 dependencies = [
  "arrow",
- "async-trait",
- "dado-core",
  "gaugeblock-contracts",
  "miter-engine",
  "parquet",
@@ -2063,22 +1984,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sawhorse-core"
-version = "0.1.0-beta.6"
-dependencies = [
- "async-trait",
- "futures-util",
- "gaugeblock-contracts",
- "reqwest",
- "serde",
- "serde_json",
- "thiserror 2.0.21",
- "tokio",
- "toml",
- "tracing",
-]
-
-[[package]]
 name = "semver"
 version = "1.0.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2298,20 +2203,6 @@ name = "static_assertions"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
-
-[[package]]
-name = "storypole-core"
-version = "0.1.0-beta.5"
-dependencies = [
- "gaugeblock-contracts",
- "rusqlite",
- "serde",
- "serde_json",
- "thiserror 2.0.21",
- "toml",
- "tracing",
- "uuid",
-]
 
 [[package]]
 name = "streaming-iterator"
@@ -3293,6 +3184,10 @@ name = "chalkline-cli"
 version = "0.1.0-beta.4"
 
 [[patch.unused]]
+name = "chalkline-core"
+version = "0.1.0-beta.4"
+
+[[patch.unused]]
 name = "chalkline-mcp"
 version = "0.1.0-beta.4"
 
@@ -3302,6 +3197,10 @@ version = "0.1.0-beta.4"
 
 [[patch.unused]]
 name = "dado-cli"
+version = "0.1.0-beta.4"
+
+[[patch.unused]]
+name = "dado-core"
 version = "0.1.0-beta.4"
 
 [[patch.unused]]
@@ -3365,11 +3264,19 @@ name = "sawhorse-cli"
 version = "0.1.0-beta.6"
 
 [[patch.unused]]
+name = "sawhorse-core"
+version = "0.1.0-beta.6"
+
+[[patch.unused]]
 name = "storypole"
 version = "0.1.0-beta.5"
 
 [[patch.unused]]
 name = "storypole-cli"
+version = "0.1.0-beta.5"
+
+[[patch.unused]]
+name = "storypole-core"
 version = "0.1.0-beta.5"
 
 [[patch.unused]]
