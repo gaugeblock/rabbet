@@ -32,10 +32,18 @@ pub fn validate_trace_structure(trace: &AnonymizedSynthesisTrace) -> Result<()> 
         ));
     }
 
+    // The rule is "carries evidence", not "carries a hole". A scope-level record is what
+    // `storypole verify` writes: its meaning lives in the scope signature plus the verification
+    // report, and a task with no target symbols legitimately has no filled holes. Requiring a hole
+    // discarded 10 of 18 records on the first real ingest (GB-207), so a verified scope now counts.
     if trace.filled_holes.is_empty() && trace.rejected_attempt.is_none() {
-        return Err(RabbetError::InvalidAst(
-            "Trace must contain at least one filled hole or a rejected attempt".to_string(),
-        ));
+        let verified_scope = trace.verification.ast_valid && trace.verification.typecheck_passed;
+        if !verified_scope {
+            return Err(RabbetError::InvalidAst(
+                "Trace must contain a filled hole, a rejected attempt, or a verified scope"
+                    .to_string(),
+            ));
+        }
     }
 
     // Check basic bracket/parenthesis balancing in scope signature

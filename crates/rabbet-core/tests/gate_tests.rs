@@ -93,3 +93,65 @@ fn test_batch_ingest_pipeline() {
     assert_eq!(resp2.duplicates, 1);
     assert_eq!(resp2.rejected, 1);
 }
+
+#[test]
+fn test_a_verified_scope_level_trace_is_accepted() {
+    // What `storypole verify` writes for a task with no target symbols: provenance and a receipt,
+    // no holes. It carries evidence, so the structural gate must not discard it (GB-207).
+    let mut trace = make_valid_trace();
+    trace.filled_holes.clear();
+    trace.rejected_attempt = None;
+    trace.task_key = Some("GB-207".to_string());
+    trace.head_commit_sha = Some("abc123".to_string());
+    trace.anonymized_scope_signature = "GB-207 scope-level verification".to_string();
+
+    let hash = compute_canonical_trace_hash(&trace).expect("hash");
+    let store = MasterStore::open_in_memory().expect("in-memory db");
+    let batch = BatchIngestRequest {
+        client_version: "rabbet-test 0.1.0".to_string(),
+        traces: vec![SpoolEntry {
+            trace,
+            content_hash: hash,
+            sync_status: SyncStatus::Pending,
+            recorded_at_ms: 1,
+        }],
+    };
+
+    let response = process_ingest_batch(&store, &batch).expect("gate");
+    assert_eq!(response.accepted, 1, "a verified scope is evidence enough");
+    assert_eq!(response.rejected, 0);
+}
+
+#[test]
+fn test_an_unverified_scope_without_a_hole_is_still_rejected() {
+    let mut trace = make_valid_trace();
+    trace.filled_holes.clear();
+    trace.rejected_attempt = None;
+    trace.verification.ast_valid = false;
+
+    let hash = compute_canonical_trace_hash(&trace).expect("hash");
+    let store = MasterStore::open_in_memory().expect("in-memory db");
+    let batch = BatchIngestRequest {
+        client_version: "rabbet-test 0.1.0".to_string(),
+        traces: vec![SpoolEntry {
+            trace,
+            content_hash: hash,
+            sync_status: SyncStatus::Pending,
+            recorded_at_ms: 1,
+        }],
+    };
+
+    let response = process_ingest_batch(&store, &batch).expect("gate");
+    assert_eq!(
+        response.rejected, 1,
+        "an empty unverified trace is still noise"
+    );
+    assert!(
+        response.details[0]
+            .reason
+            .as_deref()
+            .unwrap_or_default()
+            .contains("verified scope"),
+        "the message names the new rule"
+    );
+}
