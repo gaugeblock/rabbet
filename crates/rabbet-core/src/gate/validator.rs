@@ -46,6 +46,19 @@ pub fn validate_trace_structure(trace: &AnonymizedSynthesisTrace) -> Result<()> 
         }
     }
 
+    // A hole whose body is empty or a placeholder carries no expression, so a pair built from it
+    // trains nothing. Seven spool records reached the corpus this way before joiner started sending
+    // real bodies (GB-225); the guard belongs on the receiving side too, because any producer - not
+    // just joiner - can hand the corpus an untrainable pair.
+    for (hole, body) in &trace.filled_holes {
+        let body = body.trim();
+        if body.is_empty() || body == "<filled>" {
+            return Err(RabbetError::InvalidAst(format!(
+                "Filled hole `{hole}` has no expression (placeholder or empty body)"
+            )));
+        }
+    }
+
     // Check basic bracket/parenthesis balancing in scope signature
     let mut depth: i32 = 0;
     for ch in trace.anonymized_scope_signature.chars() {
