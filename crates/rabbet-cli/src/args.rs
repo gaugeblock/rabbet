@@ -35,8 +35,23 @@ pub enum Command {
     /// Packages and publishes Parquet dataset shards to Hugging Face Hub.
     PublishHub(PublishHubArgs),
 
+    /// Ingests local spool envelopes (`.gaugeblock/spool/outbox.jsonl`) into the master store.
+    Ingest(IngestArgs),
+
     /// Executes maintainer control plane operations via CLI.
     Admin(AdminArgs),
+}
+
+/// Arguments for `rabbet ingest`.
+#[derive(Debug, Args)]
+pub struct IngestArgs {
+    /// Path to the spool envelope file (JSON lines).
+    #[arg(long, default_value = ".gaugeblock/spool/outbox.jsonl")]
+    pub spool: PathBuf,
+
+    /// Path to master SQLite database.
+    #[arg(long, default_value = "rabbet.db", env = "RABBET_DB_PATH")]
+    pub db_path: PathBuf,
 }
 
 /// Arguments for `rabbet serve`.

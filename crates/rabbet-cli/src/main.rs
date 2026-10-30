@@ -19,6 +19,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         Command::Serve(args) => exec_serve(args).await?,
         Command::MineOss(args) => exec_mine_oss(args)?,
         Command::ExportParquet(args) => exec_export_parquet(args)?,
+        Command::Ingest(args) => exec_ingest(args)?,
         Command::MinePatterns(args) => exec_mine_patterns(args)?,
         Command::PublishHub(args) => exec_publish_hub(args).await?,
         Command::Admin(args) => exec_admin(args)?,
