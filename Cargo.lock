@@ -791,6 +791,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "gaugeblock-workspace"
+version = "0.1.0-beta.1"
+dependencies = [
+ "gaugeblock-git",
+ "thiserror 2.0.21",
+]
+
+[[package]]
 name = "generic-array"
 version = "0.14.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1411,6 +1419,7 @@ dependencies = [
  "dockerfile-parser",
  "gaugeblock-contracts",
  "gaugeblock-git",
+ "gaugeblock-workspace",
  "globset",
  "hcl-rs",
  "miter-ast",
@@ -3217,10 +3226,6 @@ version = "0.1.0-beta.4"
 
 [[patch.unused]]
 name = "gaugeblock-common"
-version = "0.1.0-beta.1"
-
-[[patch.unused]]
-name = "gaugeblock-workspace"
 version = "0.1.0-beta.1"
 
 [[patch.unused]]
