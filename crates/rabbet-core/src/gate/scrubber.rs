@@ -2,7 +2,7 @@
 
 use crate::error::{RabbetError, Result};
 use crate::model::AnonymizedSynthesisTrace;
-use miter_engine::security::{
+use gaugeblock_security::{
     REDACTED_SECRET, is_high_entropy_secret, is_secret_literal, scrub_source_text,
 };
 
