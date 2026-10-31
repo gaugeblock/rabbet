@@ -1403,6 +1403,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "miter-analysis"
+version = "0.1.0-beta.4"
+dependencies = [
+ "dockerfile-parser",
+ "miter-ast",
+ "miter-polyglot",
+ "miter-security",
+ "miter-storage",
+ "serde",
+ "serde_json",
+ "tree-sitter",
+]
+
+[[package]]
 name = "miter-ast"
 version = "0.1.0-beta.4"
 dependencies = [
@@ -1422,6 +1436,7 @@ dependencies = [
  "gaugeblock-git",
  "gaugeblock-workspace",
  "globset",
+ "miter-analysis",
  "miter-ast",
  "miter-polyglot",
  "miter-security",
