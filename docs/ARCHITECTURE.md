@@ -106,6 +106,6 @@ sequenceDiagram
 
 | Crate | Path | Responsibility |
 |:---|:---|:---|
-| [`rabbet`](./src/lib.rs) | `.` | Root facade re-exporting `rabbet_core` domain APIs |
-| [`rabbet-cli`](./crates/rabbet-cli) | `crates/rabbet-cli` | Axum HTTP server, static asset embedding (`rust-embed`), Clap CLI |
-| [`rabbet-core`](./crates/rabbet-core) | `crates/rabbet-core` | Schemas, SQLite repository, Tree-sitter AST validator, Arrow compactor, OSS & pattern miners |
+| [`rabbet`](../src/lib.rs) | `.` | Root facade re-exporting `rabbet_core` domain APIs |
+| [`rabbet-cli`](../crates/rabbet-cli) | `crates/rabbet-cli` | Axum HTTP server, static asset embedding (`rust-embed`), Clap CLI |
+| [`rabbet-core`](../crates/rabbet-core) | `crates/rabbet-core` | Schemas, SQLite repository, Tree-sitter AST validator, Arrow compactor, OSS & pattern miners |
