@@ -45,9 +45,13 @@ pub enum Command {
 /// Arguments for `rabbet ingest`.
 #[derive(Debug, Args)]
 pub struct IngestArgs {
-    /// Path to the spool envelope file (JSON lines).
-    #[arg(long, default_value = ".gaugeblock/spool/outbox.jsonl")]
-    pub spool: PathBuf,
+    /// Path to the spool envelope file (JSON lines); defaults to this repository's spool.
+    ///
+    /// The default is resolved at run time through `gaugeblock-workspace` rather than shipped as a literal
+    /// (`GB-304`). A literal default is a path the tool never validates: it looks canonical, it is not
+    /// resolved against the repository actually in use, and a caller cannot tell whether they overrode it.
+    #[arg(long)]
+    pub spool: Option<PathBuf>,
 
     /// Path to master SQLite database.
     #[arg(long, default_value = "rabbet.db", env = "RABBET_DB_PATH")]

@@ -22,7 +22,16 @@ use rabbet_core::model::BatchIngestRequest;
 /// Propagates a missing or unreadable spool, an unusable database, and any gate failure that is not
 /// per-trace (per-trace rejections are counted and reported, not raised).
 pub fn exec_ingest(args: IngestArgs) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let text = std::fs::read_to_string(&args.spool)?;
+    let spool = match &args.spool {
+        Some(explicit) => explicit.clone(),
+        None => {
+            let cwd = std::env::current_dir()?;
+            gaugeblock_workspace::GaugeblockPaths::discover(&cwd)
+                .map(|paths| paths.outbox())
+                .unwrap_or_else(|_| cwd.join(".gaugeblock").join("spool").join("outbox.jsonl"))
+        }
+    };
+    let text = std::fs::read_to_string(&spool)?;
 
     let mut entries = Vec::new();
     let mut malformed = 0usize;
@@ -47,7 +56,7 @@ pub fn exec_ingest(args: IngestArgs) -> Result<(), Box<dyn std::error::Error + S
 
     println!(
         "Spool {} ({} record(s), {} malformed):",
-        args.spool.display(),
+        spool.display(),
         total + malformed,
         malformed
     );
