@@ -1,0 +1,87 @@
+{
+  "ticket": {
+    "id": "443b25d1-eb19-46d8-b630-28271c113694",
+    "ticket_key": "GB-166",
+    "slug": "backfill-training-traces-from-storypole-verified-git-history-443b25",
+    "title": "Backfill training traces from Storypole-verified git history",
+    "description": "Retroactive half of the synthesis dogfooding plan: harvest roughly 160 verified tasks out of git history into training data. Measured starting state: no backfill or harvest command exists in rabbet or joiner (grep for backfill/harvest returns nothing); rabbet offers serve, mine-oss, export-parquet, mine-patterns, publish-hub, admin - mine-oss mines OSS code, not our own history. Scope: read Verified tasks from .gaugeblock/storypole/ledger.jsonl, use each VerificationReceipt commit_shas with base_commit_sha and head_commit_sha, extract the function bodies added in that range via miter, and emit Silver SFT records (LexicalScope plus task context to verified body) into .gaugeblock/spool/outbox.jsonl for rabbet export-parquet. Read-only over history, so it does not block GB-161 and can run in parallel. Note: rabbet is at 0.1.0-beta.1 while its siblings are 0.1.0-beta.4, worth reconciling when this lands.",
+    "kind": "feature",
+    "status": "deferred",
+    "priority": 3,
+    "scope": {
+      "repo": null,
+      "crate_name": "rabbet-core",
+      "module_path": null,
+      "target_files": [
+        "rabbet/crates"
+      ],
+      "target_symbols": [
+        "rabbet_core"
+      ],
+      "labels": []
+    },
+    "edges": [
+      {
+        "kind": "related_to",
+        "target_id": "13a13060-d732-4272-a610-5285477f7021",
+        "target_ticket_key": "GB-165"
+      }
+    ],
+    "decisions": [],
+    "acceptance_criteria": [],
+    "plan": null,
+    "active_claim": null,
+    "latest_handoff": null,
+    "verification_receipt": null,
+    "created_at_epoch_ms": 1793251321080,
+    "updated_at_epoch_ms": 1793252048412
+  },
+  "events": [
+    {
+      "event": "deferred_item_captured",
+      "task": {
+        "id": "443b25d1-eb19-46d8-b630-28271c113694",
+        "ticket_key": "GB-166",
+        "slug": "backfill-training-traces-from-storypole-verified-git-history-443b25",
+        "title": "Backfill training traces from Storypole-verified git history",
+        "description": "Retroactive half of the synthesis dogfooding plan: harvest roughly 160 verified tasks out of git history into training data. Measured starting state: no backfill or harvest command exists in rabbet or joiner (grep for backfill/harvest returns nothing); rabbet offers serve, mine-oss, export-parquet, mine-patterns, publish-hub, admin - mine-oss mines OSS code, not our own history. Scope: read Verified tasks from .gaugeblock/storypole/ledger.jsonl, use each VerificationReceipt commit_shas with base_commit_sha and head_commit_sha, extract the function bodies added in that range via miter, and emit Silver SFT records (LexicalScope plus task context to verified body) into .gaugeblock/spool/outbox.jsonl for rabbet export-parquet. Read-only over history, so it does not block GB-161 and can run in parallel. Note: rabbet is at 0.1.0-beta.1 while its siblings are 0.1.0-beta.4, worth reconciling when this lands.",
+        "kind": "feature",
+        "status": "deferred",
+        "priority": 3,
+        "scope": {
+          "repo": null,
+          "crate_name": "rabbet-core",
+          "module_path": null,
+          "target_files": [
+            "rabbet/crates"
+          ],
+          "target_symbols": [
+            "rabbet_core"
+          ],
+          "labels": []
+        },
+        "edges": [],
+        "decisions": [],
+        "acceptance_criteria": [],
+        "plan": null,
+        "active_claim": null,
+        "latest_handoff": null,
+        "verification_receipt": null,
+        "created_at_epoch_ms": 1793251321080,
+        "updated_at_epoch_ms": 1793251321080
+      },
+      "captured_by_agent": "cline",
+      "discovered_from_task_id": null
+    },
+    {
+      "event": "edge_added",
+      "task_id": "443b25d1-eb19-46d8-b630-28271c113694",
+      "edge": {
+        "kind": "related_to",
+        "target_id": "13a13060-d732-4272-a610-5285477f7021",
+        "target_ticket_key": "GB-165"
+      },
+      "timestamp_ms": 1793252048412
+    }
+  ]
+}
