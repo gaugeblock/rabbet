@@ -19,16 +19,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         .init();
 
     let cli = Cli::parse();
-    match cli.command {
-        Command::Serve(args) => exec_serve(args).await?,
-        Command::MineOss(args) => exec_mine_oss(args)?,
-        Command::ExportParquet(args) => exec_export_parquet(args)?,
-        Command::Ingest(args) => exec_ingest(args)?,
-        Command::MinePatterns(args) => exec_mine_patterns(args)?,
-        Command::PublishHub(args) => exec_publish_hub(args).await?,
-        Command::Admin(args) => exec_admin(args)?,
-    }
 
-    invocation.finish(true);
-    Ok(())
+    // Inside an async block so the result can be inspected before the span closes: with `?` at this level an error
+    // returned from `main` and the span was recorded as still running (`GB-339`).
+    let result = async {
+        match cli.command {
+            Command::Serve(args) => exec_serve(args).await?,
+            Command::MineOss(args) => exec_mine_oss(args)?,
+            Command::ExportParquet(args) => exec_export_parquet(args)?,
+            Command::Ingest(args) => exec_ingest(args)?,
+            Command::MinePatterns(args) => exec_mine_patterns(args)?,
+            Command::PublishHub(args) => exec_publish_hub(args).await?,
+            Command::Admin(args) => exec_admin(args)?,
+        }
+        Ok(())
+    }
+    .await;
+
+    invocation.finish(result.is_ok());
+    result
 }
