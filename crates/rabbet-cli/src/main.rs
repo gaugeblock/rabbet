@@ -6,6 +6,10 @@ use rabbet_cli::commands::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    // One span per invocation, so the panel can answer what the suite did rather than only what inference
+    // cost (`GB-339`). Opened before any work and closed with the outcome; it cannot fail the command.
+    let invocation = gaugeblock_workspace::InvocationSpan::start("rabbet", None);
+
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env()
@@ -25,5 +29,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         Command::Admin(args) => exec_admin(args)?,
     }
 
+    invocation.finish(true);
     Ok(())
 }
