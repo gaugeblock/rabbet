@@ -15,6 +15,22 @@ use rabbet_core::db::MasterStore;
 use rabbet_core::gate::process_ingest_batch;
 use rabbet_core::model::BatchIngestRequest;
 
+/// The spool to read when `--spool` is not given: the suite's, resolved from `cwd`.
+///
+/// It used to be `GaugeblockPaths::discover(cwd).outbox()`, which resolves through the git common dir and so
+/// never leaves the repository the command was run in. Inside a member that is the member's own spool - empty,
+/// because traces centralise at the suite root (`GB-338`) - so `rabbet ingest` read nothing and reported
+/// nothing wrong. `gaugeblock_workspace::outbox_path` asks the suite question, and the member's spool stays the
+/// fallback for a repository that has no suite above it.
+///
+/// `pub` because the resolution is the part that was wrong, and a test that runs an ingest end to end cannot
+/// tell "read the suite spool" from "read a spool that happened to have the same bytes".
+#[must_use]
+pub fn default_spool(cwd: &std::path::Path) -> std::path::PathBuf {
+    gaugeblock_workspace::outbox_path(cwd)
+        .unwrap_or_else(|| cwd.join(".gaugeblock").join("spool").join("outbox.jsonl"))
+}
+
 /// Executes `rabbet ingest`.
 ///
 /// # Errors
@@ -24,12 +40,7 @@ use rabbet_core::model::BatchIngestRequest;
 pub fn exec_ingest(args: IngestArgs) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let spool = match &args.spool {
         Some(explicit) => explicit.clone(),
-        None => {
-            let cwd = std::env::current_dir()?;
-            gaugeblock_workspace::GaugeblockPaths::discover(&cwd)
-                .map(|paths| paths.outbox())
-                .unwrap_or_else(|_| cwd.join(".gaugeblock").join("spool").join("outbox.jsonl"))
-        }
+        None => default_spool(&std::env::current_dir()?),
     };
     let text = std::fs::read_to_string(&spool)?;
 
