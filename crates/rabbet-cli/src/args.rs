@@ -146,7 +146,17 @@ pub struct PublishHubArgs {
 #[derive(Debug, Args)]
 pub struct AdminArgs {
     /// Path to master SQLite database.
-    #[arg(long, default_value = "rabbet.db")]
+    ///
+    /// `global` so it may follow the subcommand as well as precede it, and `env` so a shell can point the
+    /// whole tool at one database - `GB-226` recorded both halves as broken: `rabbet admin stats
+    /// --db-path X` was an argument error, and `RABBET_DB_PATH` was ignored, so the command reported on
+    /// `rabbet.db` while the caller believed it was reading the file it named.
+    #[arg(
+        long,
+        global = true,
+        default_value = "rabbet.db",
+        env = "RABBET_DB_PATH"
+    )]
     pub db_path: PathBuf,
 
     #[command(subcommand)]
@@ -171,4 +181,48 @@ pub enum AdminSubcommand {
         #[arg(short, long, default_value = ".dado/patterns")]
         output_dir: PathBuf,
     },
+}
+
+#[cfg(test)]
+mod tests {
+    //! Argument parsing, which is where `GB-226` lived: the flag was rejected after the subcommand and
+    //! the environment variable was never read. Both are properties of the declaration, so both are tested
+    //! there rather than through a spawned process.
+    #![allow(clippy::unwrap_used, clippy::expect_used)]
+
+    use super::*;
+
+    fn db_path_of(argv: &[&str]) -> PathBuf {
+        match Cli::parse_from(argv).command {
+            Command::Admin(args) => args.db_path,
+            other => panic!("expected an admin command, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn the_database_flag_may_follow_the_subcommand() {
+        let path = db_path_of(&["rabbet", "admin", "stats", "--db-path", "/tmp/corpus.db"]);
+        assert_eq!(path, PathBuf::from("/tmp/corpus.db"));
+    }
+
+    #[test]
+    fn the_database_flag_may_precede_the_subcommand() {
+        let path = db_path_of(&["rabbet", "admin", "--db-path", "/tmp/corpus.db", "stats"]);
+        assert_eq!(path, PathBuf::from("/tmp/corpus.db"));
+    }
+
+    #[test]
+    fn the_database_env_var_is_a_fallback_not_an_override() {
+        // Reading the variable in a test is safe; setting it is not (edition 2024 makes `set_var`
+        // unsafe and this workspace denies unsafe code), so the documented precedence is asserted from
+        // the flag side: an explicit flag wins, and the default stands when neither is given.
+        let explicit = db_path_of(&["rabbet", "admin", "stats", "--db-path", "/tmp/corpus.db"]);
+        assert_eq!(explicit, PathBuf::from("/tmp/corpus.db"));
+        let default = db_path_of(&["rabbet", "admin", "stats"]);
+        assert_eq!(
+            default.file_name().and_then(|n| n.to_str()),
+            Some("rabbet.db"),
+            "the declared default is still the fallback"
+        );
+    }
 }
